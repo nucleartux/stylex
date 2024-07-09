@@ -155,12 +155,14 @@ function evaluateThemeRef(
   state: State,
 ): { [key: string]: string } {
   const resolveKey = (key: string) => {
+    if (key.startsWith('--')) {
+      return `var(${key})`;
+    }
+
     const strToHash =
       key === '__themeName__'
         ? utils.genFileBasedIdentifier({ fileName, exportName })
-        : key.startsWith('--')
-          ? `var(${key})`
-          : utils.genFileBasedIdentifier({ fileName, exportName, key });
+        : utils.genFileBasedIdentifier({ fileName, exportName, key });
 
     const varName =
       state.traversalState.options.classNamePrefix + utils.hash(strToHash);
@@ -690,6 +692,9 @@ function _evaluate(path: NodePath<>, state: State): any {
       ) {
         const val: number | string = object.node.value;
         func = (val as $FlowFixMe)[property.node.name];
+        if (typeof val === 'string') {
+          context = object.node.value;
+        }
       }
 
       if (func == null) {

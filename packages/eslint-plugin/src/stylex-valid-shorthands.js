@@ -204,7 +204,6 @@ const stylexValidShorthands = {
     function validateProperty(property: Property) {
       if (property.computed) {
         // can't resolve computed keys
-        console.log('hello');
         return;
       }
 
@@ -225,10 +224,8 @@ const stylexValidShorthands = {
           },
         });
       }
-      console.log(key);
 
       if (typeof key === 'string' && incompatibleStyles.includes(key)) {
-        console.log('invalid');
         context.report({
           node: property,
           message: `Properties like "${key}" are not allowed in StyleX.`,
@@ -255,8 +252,6 @@ const stylexValidShorthands = {
           },
         });
       }
-
-      console.log('valid');
 
       if (
         typeof key !== 'string' ||
