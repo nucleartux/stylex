@@ -31,6 +31,8 @@ const legacyNameMapping = {
   paddingEnd: 'paddingInlineEnd',
 };
 
+const incompatibleStyles = ['background', 'transition'];
+
 const shorthandAliases = {
   marginInline: (
     rawValue: number | string,
@@ -202,6 +204,7 @@ const stylexValidShorthands = {
     function validateProperty(property: Property) {
       if (property.computed) {
         // can't resolve computed keys
+        console.log('hello');
         return;
       }
 
@@ -222,6 +225,38 @@ const stylexValidShorthands = {
           },
         });
       }
+      console.log(key);
+
+      if (typeof key === 'string' && incompatibleStyles.includes(key)) {
+        console.log('invalid');
+        context.report({
+          node: property,
+          message: `Properties like "${key}" are not allowed in StyleX.`,
+          fix: (fixer) => {
+            if (!property.range || property.range.length < 2) {
+              return null;
+            }
+
+            // $FlowFixMe - Flow is not accurately getting this type
+            const sourceCode = context.getSourceCode();
+            // $FlowFixMe - Flow is not accurately getting this type
+            const textAfterProperty = sourceCode
+              .getText()
+              // $FlowFixMe - We have already checked this exists
+              .slice(property.range[1]);
+
+            const lineBreakMatch = textAfterProperty.match(/^(\s*,?\s*\r?\n?)/);
+            const rangeEnd =
+              // $FlowFixMe - We have already checked this exists
+              property.range[1] +
+              (lineBreakMatch ? lineBreakMatch[0].length : 0);
+            // $FlowFixMe - We have already checked this exists
+            return fixer.removeRange([property.range[0], rangeEnd]);
+          },
+        });
+      }
+
+      console.log('valid');
 
       if (
         typeof key !== 'string' ||

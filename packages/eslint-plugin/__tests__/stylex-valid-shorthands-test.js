@@ -138,6 +138,52 @@ eslintTester.run('stylex-valid-shorthands', rule.default, {
       ],
     },
     {
+      code: `
+        import stylex from 'stylex';
+        const styles = stylex.create({
+          main: {
+            background: '#ffcc00',
+          },
+        });
+      `,
+      output: `
+        import stylex from 'stylex';
+        const styles = stylex.create({
+          main: {
+            },
+        });
+      `,
+      errors: [
+        {
+          message: 'Properties like "background" are not allowed in StyleX.',
+        },
+      ],
+    },
+    {
+      code: `
+        import stylex from 'stylex';
+        const styles = stylex.create({
+          main: {
+            transition: 'background-color 0.3s ease-in-out',
+            color: 'white',
+          },
+        });
+      `,
+      output: `
+        import stylex from 'stylex';
+        const styles = stylex.create({
+          main: {
+            color: 'white',
+          },
+        });
+      `,
+      errors: [
+        {
+          message: 'Properties like "transition" are not allowed in StyleX.',
+        },
+      ],
+    },
+    {
       options: [{ allowImportant: true }],
       code: `
         import stylex from 'stylex';
